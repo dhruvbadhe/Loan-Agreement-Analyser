@@ -1,0 +1,25 @@
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Local databases
+chroma_db/
+chroma.sqlite3
+
+# Temporary uploads & downloaded docs
+temp_uploads/
+sample_loan.pdf
+
+# OS files
+.DS_Store
+
+# Environment configuration (Keys)
+.env
