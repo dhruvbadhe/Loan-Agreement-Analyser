@@ -21,4 +21,4 @@ services:
     plan: free
     envVars:
       - key: API_URL
-        value: http://loan-analyser-api:10000
+        value: https://loan-analyser-api.onrender.com
