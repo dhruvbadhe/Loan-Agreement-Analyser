@@ -10,17 +10,25 @@ class HuggingFaceEmbedder:
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         if not texts:
             return []
-        try:
-            response = httpx.post(
-                self.api_url,
-                headers=self.headers,
-                json={"inputs": texts},
-                timeout=60.0
-            )
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            raise RuntimeError(f"Failed to generate embeddings from HuggingFace API: {e}")
+        
+        batch_size = 16
+        all_embeddings = []
+        
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i:i + batch_size]
+            try:
+                response = httpx.post(
+                    self.api_url,
+                    headers=self.headers,
+                    json={"inputs": batch},
+                    timeout=60.0
+                )
+                response.raise_for_status()
+                all_embeddings.extend(response.json())
+            except Exception as e:
+                raise RuntimeError(f"Failed to generate embeddings from HuggingFace API: {e}")
+                
+        return all_embeddings
 
     def embed_query(self, text: str) -> List[float]:
         embeddings = self.embed_documents([text])
