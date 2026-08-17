@@ -21,7 +21,4 @@ services:
     plan: free
     envVars:
       - key: API_URL
-        fromService:
-          name: loan-analyser-api
-          type: web
-          property: url
+        value: http://loan-analyser-api:10000
