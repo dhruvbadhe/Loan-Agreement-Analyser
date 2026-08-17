@@ -1,0 +1,27 @@
+services:
+  # 1. FastAPI Backend Web Service
+  - type: web
+    name: loan-analyser-api
+    env: docker
+    dockerfilePath: app/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false  # You will enter your Groq API key in the Render dashboard during deployment
+      - key: CHROMA_DB_PATH
+        value: ./chroma_db
+
+  # 2. Streamlit Frontend Web Service
+  - type: web
+    name: loan-analyser-frontend
+    env: docker
+    dockerfilePath: frontend/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: API_URL
+        fromService:
+          name: loan-analyser-api
+          type: web
+          property: url

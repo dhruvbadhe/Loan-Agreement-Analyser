@@ -1,7 +1,7 @@
 from groq import Groq
 from typing import List, Dict, Any
 from app.core.config import settings
-
+import json
 client = Groq(api_key=settings.GROQ_API_KEY)
 
 SYSTEM_PROMPT = """
@@ -46,3 +46,28 @@ def generate_answer(question: str, retrieved_clauses: List[Dict[str, Any]]) -> s
     )
 
     return response.choices[0].message.content 
+
+QUERY_EXPANSION_PROMPT = """
+You are a legal search assistant. Your task is to generate exactly 2 alternative search queries for a user's question about a contract.
+Focus on translating plain language into standard legal and financial terminology (e.g., "missed payment" -> "default", "paying off early" -> "prepayment/foreclosure").
+User Question: {question}
+Rules:
+- Generate exactly 2 alternative search queries.
+- Output ONLY a valid JSON object in this format: {{"queries": ["query 1", "query 2"]}}
+"""
+
+def expand_query(question: str) -> List[str]:
+    try:
+        response = client.chat.completions.create(
+            model=settings.LLM_MODEL,
+            messages=[
+                {"role": "system", "content": "You output JSON ONLY. Do not wrap code blocks in markdown formatting."},
+                {"role": "user", "content": QUERY_EXPANSION_PROMPT.format(question=question)}
+            ],
+            temperature=0.0,
+            response_format={"type": "json_object"}
+        )
+        data = json.loads(response.choices[0].message.content)
+        return data.get("queries", [])
+    except Exception:
+        return []

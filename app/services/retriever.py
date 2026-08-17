@@ -5,7 +5,7 @@ from rank_bm25 import BM25Okapi
 from app.core.config import settings
 from app.services.embedder import embedder
 import re
-
+from app.services.generator import expand_query
 
 os.makedirs(settings.CHROMA_DB_PATH, exist_ok=True)
 client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
@@ -119,3 +119,56 @@ def delete_session_collection(session_id: str):
         client.delete_collection(name=collection_name)
     except ValueError:
         pass
+
+def query_session_collection(session_id: str, query_text: str, top_k: int = 5) -> List[Dict[str, Any]]:
+    collection = get_collection(session_id)
+
+    db_data = collection.get()
+    documents = db_data.get("documents", [])
+    metadatas = db_data.get("metadatas", [])
+
+    if not documents:
+        return []
+
+    queries_to_run = [query_text] + expand_query(query_text)
+
+    tokenized_corpus = [tokenize(doc) for doc in documents]
+    bm25 = BM25Okapi(tokenized_corpus)
+
+    all_dense_results = []
+    all_sparse_results = []
+
+    for query in queries_to_run:
+        tokenized_query = tokenize(query)
+        bm25_scores = bm25.get_scores(tokenized_query)
+
+        for idx, score in enumerate(bm25_scores):
+            if score > 0.0:
+                all_sparse_results.append({
+                    "text" : documents[idx],
+                    "clause_id" : metadatas[idx]["clause_id"],
+                    "page": metadatas[idx]["page"],
+                    "score": score
+                })
+
+        query_vector = embedder.embed_query(query)
+        vector_results = collection.query(
+            query_embeddings=[query_vector],
+            n_results=top_k * 2
+        )
+
+        if vector_results and vector_results["documents"] and len(vector_results["documents"][0]) > 0:
+            for i in range(len(vector_results["documents"][0])):
+                all_dense_results.append({
+                    "text": vector_results["documents"][0][i],
+                    "clause_id" : vector_results["metadatas"][0][i]["clause_id"],
+                    "page" : vector_results["metadatas"][0][i]["page"]
+                })
+
+    all_sparse_results = sorted(all_sparse_results, key=lambda x: x["score"],
+                                reverse=True)
+
+    unified_results = reciprocal_rank_fusion(all_dense_results, all_sparse_results)
+
+    return unified_results[:top_k]
+
