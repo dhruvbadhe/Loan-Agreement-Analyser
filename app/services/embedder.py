@@ -6,7 +6,7 @@ from app.core.config import settings
 
 class HuggingFaceEmbedder:
     def __init__(self):
-        self.api_url = "https://router.huggingface.co/hf-inference/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
+        self.api_url = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
         self.headers = {}
         if settings.HF_TOKEN:
             self.headers["Authorization"] = f"Bearer {settings.HF_TOKEN}"
