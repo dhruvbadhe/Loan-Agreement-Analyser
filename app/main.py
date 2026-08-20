@@ -17,6 +17,10 @@ app.include_router(ingest.router, tags=["Ingestion"])
 app.include_router(query.router, tags=["Query"])
 app.include_router(session.router, tags=["Session Management"])
 
+@app.get("/", tags=["System"])
+async def root():
+    return {"status": "healthy", "message": "API is online"}
+
 @app.get("/health", tags=["System"])
 async def health_check():
     return {"status": "healthy", "service": "Loan Agreement Analyser API is running."}
