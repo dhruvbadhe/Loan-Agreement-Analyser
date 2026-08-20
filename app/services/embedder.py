@@ -6,7 +6,7 @@ from app.core.config import settings
 
 class GeminiEmbedder:
     def __init__(self):
-        self.api_url = "https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents"
+        self.api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:batchEmbedContents"
         self.headers = {"Content-Type": "application/json"}
         self.executor = ThreadPoolExecutor(max_workers=1)
 
@@ -14,7 +14,7 @@ class GeminiEmbedder:
         requests_payload = []
         for text in batch:
             requests_payload.append({
-                "model": "models/text-embedding-004",
+                "model": "models/gemini-embedding-001",
                 "content": {
                     "parts": [{"text": text}]
                 }

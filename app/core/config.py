@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = Field(..., validation_alias="GROQ_API_KEY")
     GEMINI_API_KEY: str = Field(..., validation_alias="GEMINI_API_KEY")
     LLM_MODEL: str = "llama-3.1-8b-instant" 
-    EMBEDDING_MODEL: str = "text-embedding-004"
+    EMBEDDING_MODEL: str = "gemini-embedding-001"
     CHROMA_DB_PATH: str = "./chroma_db"
     
     class Config:
