@@ -3,9 +3,9 @@ from pydantic import Field
 
 class Settings(BaseSettings):
     GROQ_API_KEY: str = Field(..., validation_alias="GROQ_API_KEY")
-    HF_TOKEN: str = ""
+    GEMINI_API_KEY: str = Field(..., validation_alias="GEMINI_API_KEY")
     LLM_MODEL: str = "llama-3.1-8b-instant" 
-    EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
+    EMBEDDING_MODEL: str = "text-embedding-004"
     CHROMA_DB_PATH: str = "./chroma_db"
     
     class Config:

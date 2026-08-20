@@ -9,8 +9,8 @@ services:
     envVars:
       - key: GROQ_API_KEY
         sync: false  # You will enter your Groq API key in the Render dashboard during deployment
-      - key: HF_TOKEN
-        sync: false  # You will enter your free Hugging Face token in the Render dashboard
+      - key: GEMINI_API_KEY
+        sync: false  # You will enter your Google AI Studio API key in the Render dashboard
       - key: CHROMA_DB_PATH
         value: ./chroma_db
 
